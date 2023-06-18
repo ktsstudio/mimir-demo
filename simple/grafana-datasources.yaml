@@ -1,0 +1,13 @@
+apiVersion: 1
+datasources:
+  - name: Grafana Mimir
+    type: prometheus
+    url: http://mimir:9009/prometheus
+    access: proxy
+    isDefault: true
+    prometheusType: Mimir
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    access: proxy
+    isDefault: false
