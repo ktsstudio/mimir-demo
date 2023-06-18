@@ -1,0 +1,53 @@
+version: '3.8'
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus: {}
+  grafana: {}
+  mimir: {}
+
+services:
+  mimir:
+    image: grafana/mimir:latest
+    restart: unless-stopped
+    volumes:
+      - ./mimir.yaml:/etc/mimir-demo.yaml
+      - mimir:/tmp/mimir
+    command:
+      - '--config.file=/etc/mimir-demo.yaml'
+    ports:
+     - '9009:9009'
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-remote-write-receiver'
+      - '--enable-feature=native-histograms'
+    ports:
+     - '9090:9090'
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    volumes:
+      - grafana:/var/lib/grafana
+    ports:
+     - '3000:3000'
+    networks:
+      - monitoring
